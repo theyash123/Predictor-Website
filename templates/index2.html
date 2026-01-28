@@ -1,0 +1,236 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Laptop Price Predictor</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+      color: #f8f9fa;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card {
+      background-color: #212529;
+      border-radius: 1rem;
+      border: none;
+      padding: 2rem;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+      width: 100%;
+      max-width: 900px;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .card:hover {
+      transform: scale(1.01);
+      box-shadow: 0 0 40px rgba(0, 221, 255, 0.4);
+    }
+    .form-label {
+      color: #ced4da;
+    }
+    .form-control, .form-select {
+      background-color: #343a40;
+      border: none;
+      color: #fff;
+      transition: box-shadow 0.3s ease;
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: #0dcaf0;
+      box-shadow: 0 0 10px #0dcaf0;
+    }
+    .btn-primary {
+      background-color: #0dcaf0;
+      border: none;
+      transition: box-shadow 0.3s ease, transform 0.2s ease;
+    }
+    .btn-primary:hover {
+      background-color: #31d2f2;
+      box-shadow: 0 0 15px #31d2f2;
+      transform: scale(1.05);
+    }
+    .alert-info {
+      background-color: #343a40;
+      border-left: 5px solid #0dcaf0;
+      color: #0dcaf0;
+    }
+    h2 {
+      font-weight: 700;
+      color: #0dcaf0;
+      transition: text-shadow 0.3s ease;
+    }
+    h2:hover {
+      text-shadow: 0 0 10px #0dcaf0;
+    }
+    .suggestion-list {
+      color: #adb5bd;
+      margin-top: 1rem;
+    }
+    .suggestion-list ul {
+      padding-left: 1.2rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2 class="text-center mb-4">💻 Laptop Price Predictor</h2>
+    <form method="POST" action="/predict">
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Brand</label>
+          <select name="brand" class="form-select" required>
+            <option value="ASUS">ASUS</option>
+            <option value="Lenovo">Lenovo</option>
+            <option value="HP">HP</option>
+            <option value="DELL">DELL</option>
+            <option value="Acer">Acer</option>
+          </select>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Processor Brand</label>
+          <select name="processor_brand" class="form-select" required>
+            <option value="Intel">Intel</option>
+            <option value="AMD">AMD</option>
+          </select>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Processor Name</label>
+          <select name="processor_name" class="form-select" required>
+            <option value="Core i3">Core i3</option>
+            <option value="Core i5">Core i5</option>
+            <option value="Core i7">Core i7</option>
+            <option value="Core i9">Core i9</option>
+            <option value="Ryzen 3">Ryzen 5</option>
+            <option value="Ryzen 5">Ryzen 5</option>
+            <option value="Ryzen 7">Ryzen 7</option>
+          </select>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Processor Generation</label>
+          <select name="processor_gnrtn" class="form-select" required>
+           
+            <option value="4th">4th</option>
+            <option value="5th">5th</option>
+            <option value="6th">6th</option>
+            <option value="7th">7th</option>
+            <option value="8th">8th</option>
+            <option value="9th">9th</option>
+            <option value="10th">10th</option>
+            <option value="11th">11th</option>
+            <option value="12th">12th</option>
+            <option value="13th">13th</option>
+          </select>
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label">RAM (GB)</label>
+          <select name="ram_gb" class="form-select" required>
+            <option value="4">4</option>
+            <option value="8">8</option>
+            <option value="16">16</option>
+            <option value="32">32</option>
+          </select>
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label">RAM Type</label>
+          <select name="ram_type" class="form-select" required>
+            <option value="DDR3">DDR3</option>
+            <option value="DDR4">DDR4</option>
+            <option value="DDR5">DDR5</option>
+          </select>
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label">SSD (GB)</label>
+          <select name="ssd" class="form-select" required>
+            <option value="0">0</option>
+            <option value="128">128</option>
+            <option value="256">256</option>
+            <option value="512">512</option>
+            <option value="1024">1024</option>
+          </select>
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label">HDD (GB)</label>
+          <select name="hdd" class="form-select" required>
+            <option value="0">0</option>
+            <option value="256">256</option>
+            <option value="500">500</option>
+            <option value="1000">1000</option>
+            <option value="2000">2000</option>
+          </select>
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label">OS</label>
+          <select name="os" class="form-select" required>
+            <option value="Windows">Windows</option>
+            <option value="DOS">DOS</option>
+            <option value="Mac">Mac</option>
+          </select>
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label">OS Bit</label>
+          <select name="os_bit" class="form-select" required>
+            <option value="32">32</option>
+            <option value="64">64</option>
+          </select>
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Graphic Card (GB)</label>
+          <select name="graphic_card_gb" class="form-select" required>
+            <option value="0">0</option>
+            <option value="2">2</option>
+            <option value="4">4</option>
+            <option value="6">6</option>
+            <option value="8">8</option>
+          </select>
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Weight (kg)</label>
+          <input type="text" name="weight" class="form-control" required>
+        </div>
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Warranty</label>
+          <select name="warranty" class="form-select" required>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+        </select>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Touchscreen</label>
+          <select name="Touchscreen" class="form-select" required>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+          </select>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">MS Office</label>
+          <select name="msoffice" class="form-select" required>
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+          </select>
+        </div>
+      </div>
+      <div class="text-center mt-4"><button type="submit" class="btn btn-primary px-5">🔮 Predict</button></div>
+    </form>
+    {% if prediction_text %}
+    <div class="alert alert-info text-center mt-4" role="alert">
+      {{ prediction_text }}
+    </div>
+    <div class="suggestion-list">
+      <h5>💡 Suggested Laptops in Your Range:</h5>
+      <ul>
+    <li><a href="https://www.flipkart.com/lenovo-ideapad-slim-3" target="_blank">Lenovo IdeaPad Slim 3</a></li>
+    <li><a href="https://www.amazon.in/HP-15s-Ryzen-5" target="_blank">HP 15s Ryzen 5</a></li>
+    <li><a href="https://www.flipkart.com/asus-vivobook-14" target="_blank">ASUS VivoBook 14</a></li>
+    <li><a href="https://www.amazon.in/DELL-Inspiron-3511" target="_blank">DELL Inspiron 3511</a></li>
+    <li><a href="https://www.flipkart.com/acer-aspire-7-gaming" target="_blank">Acer Aspire 7 Gaming</a></li>
+  </ul>
+    </div>
+    {% endif %}
+  </div>
+</body>
+</html>

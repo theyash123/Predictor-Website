@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Laptop Price Predictor</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    :root {
+      --bg: #f8f9fa;
+      --text: #212529;
+      --card: #ffffff;
+      --input-bg: #ffffff;
+      --input-border: #ced4da;
+      --link: #4361ee;
+      --btn: #4361ee;
+      --sidebar: #ffffff;
+      --header: #ffffff;
+      --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      --disabled-text: #6c757d;
+      --sidebar-width: 280px;
+      --sidebar-collapsed-width: 80px;
+    }
+
+    body.dark-mode {
+      --bg: #0a0a0a;
+      --text: #f1f1f1;
+      --card: #121212;
+      --input-bg: #1e1e1e;
+      --input-border: #333333;
+      --link: #4895ef;
+      --btn: #4895ef;
+      --sidebar: #121212;
+      --header: #1a1a1a;
+      --shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+      --disabled-text: #8e8e8e;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      transition: var(--transition);
+      min-height: 100vh;
+    }
+
+    /* Layout */
+    .app-container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: var(--sidebar-width);
+      background-color: var(--sidebar);
+      min-height: 100vh;
+      padding: 1rem;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+      z-index: 100;
+      position: fixed;
+      border-right: 1px solid rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    body.dark-mode .sidebar {
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar.collapsed {
+      width: var(--sidebar-collapsed-width);
+    }
+
+    .sidebar.collapsed .nav-link-text,
+    .sidebar.collapsed h4 span {
+      display: none;
+    }
+
+    .sidebar.collapsed .nav-link {
+      justify-content: center;
+      padding: 0.75rem;
+    }
+
+    .sidebar.collapsed .sidebar-toggle i {
+      transform: rotate(180deg);
+    }
+
+    .sidebar h4 {
+      color: var(--link);
+      font-weight: bold;
+      margin: 1rem 0;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--link);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      white-space: nowrap;
+    }
+
+    .sidebar-toggle {
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 1.25rem;
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 50%;
+      transition: var(--transition);
+      margin-left: auto;
+    }
+
+    .sidebar-toggle:hover {
+      background-color: rgba(0, 0, 0, 0.1);
+    }
+
+    body.dark-mode .sidebar-toggle:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .nav-link {
+      color: var(--text);
+      font-weight: 500;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      margin: 0.25rem 0;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      white-space: nowrap;
+    }
+
+    .nav-link:hover {
+      color: var(--link);
+      background-color: rgba(67, 97, 238, 0.1);
+      transform: translateX(5px);
+    }
+
+    body.dark-mode .nav-link:hover {
+      background-color: rgba(72, 149, 239, 0.15);
+    }
+
+    .nav-link.active {
+      color: var(--link);
+      background-color: rgba(67, 97, 238, 0.1);
+      font-weight: 600;
+    }
+
+    body.dark-mode .nav-link.active {
+      background-color: rgba(72, 149, 239, 0.2);
+    }
+
+    .nav-link i {
+      width: 24px;
+      text-align: center;
+      font-size: 1.1rem;
+    }
+
+    .nav-link.disabled {
+      color: var(--disabled-text);
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    /* Main Content */
+    .main-content {
+      margin-left: var(--sidebar-width);
+      flex-grow: 1;
+      transition: var(--transition);
+      
+    }
+
+    .sidebar.collapsed ~ .main-content {
+      margin-left: var(--sidebar-collapsed-width);
+    }
+
+    /* Header */
+    .header {
+      background-color: var(--header);
+      padding: 1rem 2rem;
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    body.dark-mode .header {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .header h2 {
+      color: var(--link);
+      font-weight: bold;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.5rem;
+    }
+
+    /* Form Elements */
+    .form-label {
+      color: var(--text);
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .form-control,
+    .form-select {
+      background-color: var(--input-bg);
+      border: 1px solid var(--input-border);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      transition: var(--transition);
+    }
+
+    body.dark-mode .form-control,
+    body.dark-mode .form-select {
+      background-color: #1a1a1a;
+      border-color: #333;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+      box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+      border-color: var(--link);
+    }
+
+    body.dark-mode .form-control:focus,
+    body.dark-mode .form-select:focus {
+      box-shadow: 0 0 0 0.25rem rgba(72, 149, 239, 0.25);
+    }
+
+    /* Buttons */
+    .btn-primary {
+      background-color: var(--btn);
+      border: none;
+      color: white;
+      padding: 0.75rem 2rem;
+      border-radius: 50px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px rgba(67, 97, 238, 0.2);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+   
+    
+    body.dark-mode .btn-primary {
+      box-shadow: 0 4px 6px rgba(72, 149, 239, 0.3);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--btn);
+      opacity: 0.9;
+      transform: translateY(-3px);
+      box-shadow: 0 6px 8px rgba(67, 97, 238, 0.3);
+    }
+
+    body.dark-mode .btn-primary:hover {
+      box-shadow: 0 6px 8px rgba(72, 149, 239, 0.4);
+    }
+
+    .btn-primary:active {
+      transform: translateY(1px);
+    }
+
+    /* Cards */
+    .card {
+      background-color: var(--card);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+      border: none;
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    body.dark-mode .card {
+      background-color: #121212;
+      border-color: #333;
+    }
+
+    .card-header {
+      background-color: var(--header);
+      padding: 1rem 1.5rem;
+      font-weight: 600;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    body.dark-mode .card-header {
+      color: rgb(182, 181, 181);
+      background-color: #1a1a1a;
+      border-bottom-color: #333;
+    }
+
+    .card-body {
+      padding: 1.5rem;
+    }
+
+    /* Feature Icons */
+    .feature-icon {
+      font-size: 1.1rem;
+      color: var(--link);
+    }
+
+    /* Prediction Results */
+    .alert-info {
+      background-color: var(--card);
+      border-left: 5px solid var(--link);
+      color: var(--link);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+      animation: fadeInUp 0.5s;
+    }
+
+    body.dark-mode .alert-info {
+      background-color: #1a1a1a;
+    }
+
+    /* Suggestions */
+    .suggestion-list a {
+      color: var(--link);
+      text-decoration: none;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .suggestion-list a:hover {
+      text-decoration: underline;
+      transform: translateX(5px);
+    }
+
+    .suggestion-list h5 {
+      color: var(--text);
+      margin-top: 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--input-border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .suggestion-list ul {
+      list-style-type: none;
+      padding-left: 0;
+    }
+
+    .suggestion-list li {
+      padding: 0.5rem 0;
+      animation: fadeIn 0.5s forwards;
+    }
+
+    .suggestion-list li:nth-child(1) { animation-delay: 0.1s; }
+    .suggestion-list li:nth-child(2) { animation-delay: 0.2s; }
+    .suggestion-list li:nth-child(3) { animation-delay: 0.3s; }
+    .suggestion-list li:nth-child(4) { animation-delay: 0.4s; }
+    .suggestion-list li:nth-child(5) { animation-delay: 0.5s; }
+
+    /* Dark Mode Toggle */
+    .dark-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .form-check-input {
+      width: 3rem;
+      height: 1.5rem;
+      cursor: pointer;
+    }
+
+    .form-check-label {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    body.dark-mode .form-check-input {
+      background-color: #333;
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    .pulse-animation {
+      animation: pulse 2s infinite;
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+      :root {
+        --sidebar-width: 240px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      .sidebar.show {
+        transform: translateX(0);
+      }
+      .sidebar.collapsed {
+        width: var(--sidebar-width);
+      }
+      .sidebar.collapsed .nav-link-text,
+      .sidebar.collapsed h4 span {
+        display: inline;
+      }
+      .sidebar.collapsed .nav-link {
+        justify-content: flex-start;
+      }
+      .main-content {
+        margin-left: 0;
+      }
+      .mobile-menu-btn {
+        display: block;
+      }
+    }
+
+    /* Mobile Menu Button */
+    .mobile-menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      color: var(--text);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    @media (max-width: 768px) {
+      .mobile-menu-btn {
+        display: block;
+      }
+    }
+
+    /* Overlay for mobile menu */
+    .sidebar-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 99;
+      opacity: 0;
+      visibility: hidden;
+      transition: var(--transition);
+    }
+
+    .sidebar-overlay.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--sidebar);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--link);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--btn);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Mobile Menu Overlay -->
+    <div class="sidebar-overlay" onclick="toggleMobileMenu()"></div>
+    
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <div class="d-flex align-items-center justify-content-between">
+        <h4>
+          <i class="fas fa-chart-line"></i>
+          <span class="nav-link-text">Predictors</span>
+        </h4>
+        <button class="sidebar-toggle" onclick="toggleSidebar()">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+      </div>
+      <ul class="nav flex-column mt-3">
+        <li class="nav-item">
+          <a class="nav-link active" href="#">
+            <i class="fas fa-laptop"></i>
+            <span class="nav-link-text">Laptop Price</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link disabled" href="#">
+            <i class="fas fa-mobile-alt"></i>
+            <span class="nav-link-text">Mobile Price</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link disabled" href="#">
+            <i class="fas fa-tv"></i>
+            <span class="nav-link-text">LED Price</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link disabled" href="#">
+            <i class="fas fa-home"></i>
+            <span class="nav-link-text">House Price</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link disabled" href="#">
+            <i class="fas fa-chart-line"></i>
+            <span class="nav-link-text">Stock Price</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Header -->
+      <div class="header">
+        <div class="d-flex align-items-center">
+          <button class="mobile-menu-btn me-3" onclick="toggleMobileMenu()">
+            <i class="fas fa-bars"></i>
+          </button>
+          <h2><i class="fas fa-laptop me-2"></i> Laptop Price Predictor</h2>
+        </div>
+        <div class="form-check form-switch dark-toggle">
+          <input class="form-check-input" type="checkbox" id="darkSwitch" onclick="toggleDarkMode()">
+          <label class="form-check-label" for="darkSwitch">
+            <i class="fas fa-moon"></i>
+            <span class="d-none d-md-inline">Dark Mode</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Form and Output -->
+      <div class="container py-4">
+        <div class="card animate__animated animate__fadeIn">
+          <div class="card-header">
+            <i class="fas fa-cogs me-2"></i>Laptop Specifications
+          </div>
+          <div class="card-body">
+            <form method="POST" action="/predict">
+              <div class="row">
+                <!-- Brand -->
+                <div class="col-md-6 mb-3 animate__animated animate__fadeInUp">
+                  <label class="form-label"><i class="fas fa-tag feature-icon"></i>Brand</label>
+                  <select name="brand" class="form-select" required>
+                    {% for val in ['ASUS', 'Lenovo', 'HP', 'DELL', 'Acer'] %}
+                    <option value="{{ val }}" {% if request.form.get('brand') == val %}selected{% endif %}>{{ val }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+
+                <!-- Processor Brand -->
+                <div class="col-md-6 mb-3 animate__animated animate__fadeInUp">
+                  <label class="form-label"><i class="fas fa-microchip feature-icon"></i>Processor Brand</label>
+                  <select name="processor_brand" class="form-select" required>
+                    {% for val in ['Intel', 'AMD'] %}
+                    <option value="{{ val }}" {% if request.form.get('processor_brand') == val %}selected{% endif %}>{{ val }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+
+                <!-- Processor Name -->
+                <div class="col-md-6 mb-3 animate__animated animate__fadeInUp">
+                  <label class="form-label"><i class="fas fa-tachometer-alt feature-icon"></i>Processor Name</label>
+                  <select name="processor_name" class="form-select" required>
+                    {% for val in ['Core i3', 'Core i5', 'Core i7', 'Core i9', 'Ryzen 5', 'Ryzen 7', 'Ryzen 9'] %}
+                    <option value="{{ val }}" {% if request.form.get('processor_name') == val %}selected{% endif %}>{{ val }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+
+                <!-- Generation -->
+                <div class="col-md-6 mb-3 animate__animated animate__fadeInUp">
+                  <label class="form-label"><i class="fas fa-layer-group feature-icon"></i>Processor Generation</label>
+                  <select name="processor_gnrtn" class="form-select" required>
+                    {% for val in ['5th','6th','7th','8th','9th','10th','11th','12th','13th'] %}
+                    <option value="{{ val }}" {% if request.form.get('processor_gnrtn') == val %}selected{% endif %}>{{ val }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+
+                <!-- RAM, RAM Type, SSD -->
+                <div class="col-md-4 mb-3 animate__animated animate__fadeInUp">
+                  <label class="form-label"><i class="fas fa-memory feature-icon"></i>RAM (GB)</label>
+                  <select name="ram_gb" class="form-select" required>
+                    {% for val in ['4', '8', '16', '32'] %}
+                    <option value="{{ val }}" {% if request.form.get('ram_gb') == val %}selected{% endif %}>{{ val }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-md-4 mb-3 animate__animated animate__fadeInUp">
+                  <label class="form-label"><i class="fas fa-memory feature-icon"></i>RAM Type</label>
+                  <select name="ram_type" class="form-select" required>
+                    {% for val in ['DDR4', 'DDR5'] %}
+                    <option value="{{ val }}" {% if request.form.get('ram_type') == val %}selected{% endif %}>{{ val }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-md-4 mb-3 animate__animated animate__fadeInUp">
+                  <label class="form-label"><i class="fas fa-hdd feature-icon"></i>SSD (GB)</label>
+                  <select name="ssd" class="form-select" required>
+                    {% for val in ['0', '256', '512', '1024'] %}
+                    <option value="{{ val }}" {% if request.form.get('ssd') == val %}selected{% endif %}>{{ val }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+
+                <!-- HDD, OS, OS Bit -->
+                <div class="col-md-4 mb-3 animate__animated animate__fadeInUp">
+                  <label class="form-label"><i class="fas fa-hdd feature-icon"></i>HDD (GB)</label>
+                  <select name="hdd" class="form-select" required>
+                    {% for val in ['0', '500', '1000'] %}
+                    <option value="{{ val }}" {% if request.form.get('hdd') == val %}selected{% endif %}>{{ val }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-md-4 mb-3 animate__animated animate__fadeInUp">
+                  <label class="form-label"><i class="fab fa-windows feature-icon"></i>OS</label>
+                  <select name="os" class="form-select" required>
+                    {% for val in ['Windows', 'DOS', 'Mac'] %}
+                    <option value="{{ val }}" {% if request.form.get('os') == val %}selected{% endif %}>{{ val }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-md-4 mb-3 animate__animated animate__fadeInUp">
+                  <label class="form-label"><i class="fas fa-digital-tachograph feature-icon"></i>OS Bit</label>
+                  <select name="os_bit" class="form-select" required>
+                    {% for val in ['32', '64'] %}
+                    <option value="{{ val }}" {% if request.form.get('os_bit') == val %}selected{% endif %}>{{ val }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+
+                <!-- Graphics, Weight, Warranty -->
+                <div class="col-md-4 mb-3 animate__animated animate__fadeInUp">
+                  <label class="form-label"><i class="fas fa-gamepad feature-icon"></i>Graphic Card (GB)</label>
+                  <select name="graphic_card_gb" class="form-select" required>
+                    {% for val in ['0', '2', '4', '6'] %}
+                    <option value="{{ val }}" {% if request.form.get('graphic_card_gb') == val %}selected{% endif %}>{{ val }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-md-4 mb-3 animate__animated animate__fadeInUp">
+                  <label class="form-label"><i class="fas fa-weight feature-icon"></i>Weight (kg)</label>
+                  <input type="text" name="weight" class="form-control" value="{{ request.form.get('weight', '') }}" required>
+                </div>
+                <div class="col-md-4 mb-3 animate__animated animate__fadeInUp">
+                  <label class="form-label"><i class="fas fa-shield-alt feature-icon"></i>Warranty (Years)</label>
+                  <select name="warranty" class="form-select" required>
+                    {% for val in ['1','2','3','4','5'] %}
+                    <option value="{{ val }}" {% if request.form.get('warranty') == val %}selected{% endif %}>{{ val }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+
+                <!-- Touchscreen & MS Office -->
+                <div class="col-md-6 mb-3 animate__animated animate__fadeInUp">
+                  <label class="form-label"><i class="fas fa-touchpad feature-icon"></i>Touchscreen</label>
+                  <select name="Touchscreen" class="form-select" required>
+                    <option value="Yes" {% if request.form.get('Touchscreen') == 'Yes' %}selected{% endif %}>Yes</option>
+                    <option value="No" {% if request.form.get('Touchscreen') == 'No' %}selected{% endif %}>No</option>
+                  </select>
+                </div>
+                <div class="col-md-6 mb-3 animate__animated animate__fadeInUp">
+                  <label class="form-label"><i class="fas fa-file-word feature-icon"></i>MS Office</label>
+                  <select name="msoffice" class="form-select" required>
+                    <option value="Yes" {% if request.form.get('msoffice') == 'Yes' %}selected{% endif %}>Yes</option>
+                    <option value="No" {% if request.form.get('msoffice') == 'No' %}selected{% endif %}>No</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="text-center mt-4">
+                <button type="submit" class="btn btn-primary px-5 pulse-animation">
+                  <i class="fas fa-magic me-2"></i>Predict Price
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        {% if prediction_text %}
+        <div class="card animate__animated animate__fadeInUp mt-4">
+          <div class="card-header">
+            <i class="fas fa-chart-line me-2"></i>Prediction Results
+          </div>
+          <div class="card-body">
+            <div class="alert alert-info text-center" role="alert">
+              {{ prediction_text }}
+              <br><strong class="d-block mt-2"><i class="fas fa-rupee-sign me-1"></i>Approximate Laptop Price: ₹{{ prediction_text.split('₹')[-1] }}</strong>
+            </div>
+
+            <div class="suggestion-list">
+              <h5><i class="fas fa-lightbulb me-2"></i>Suggested Laptops Around This Price:</h5>
+              <ul>
+                <li><a href="https://www.flipkart.com/lenovo-ideapad-slim-3" target="_blank"><i class="fas fa-external-link-alt me-2"></i>Lenovo IdeaPad Slim 3</a></li>
+                <li><a href="https://www.amazon.in/HP-15s-Ryzen-5" target="_blank"><i class="fas fa-external-link-alt me-2"></i>HP 15s Ryzen 5</a></li>
+                <li><a href="https://www.flipkart.com/asus-vivobook-14" target="_blank"><i class="fas fa-external-link-alt me-2"></i>ASUS VivoBook 14</a></li>
+                <li><a href="https://www.amazon.in/DELL-Inspiron-3511" target="_blank"><i class="fas fa-external-link-alt me-2"></i>DELL Inspiron 3511</a></li>
+                <li><a href="https://www.flipkart.com/acer-aspire-7-gaming" target="_blank"><i class="fas fa-external-link-alt me-2"></i>Acer Aspire 7 Gaming</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Toggle sidebar collapse
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      sidebar.classList.toggle('collapsed');
+      localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+    }
+
+    // Toggle mobile menu
+    function toggleMobileMenu() {
+      const sidebar = document.getElementById('sidebar');
+      const overlay = document.querySelector('.sidebar-overlay');
+      sidebar.classList.toggle('show');
+      overlay.classList.toggle('show');
+    }
+
+    // Toggle dark mode
+    function toggleDarkMode() {
+      document.body.classList.toggle("dark-mode");
+      localStorage.setItem("theme", document.body.classList.contains("dark-mode") ? "dark" : "light");
+    }
+
+    // Initialize on load
+    window.onload = () => {
+      // Set dark mode if preferred
+      if (localStorage.getItem("theme") === "dark") {
+        document.body.classList.add("dark-mode");
+        document.getElementById("darkSwitch").checked = true;
+      }
+
+      // Set sidebar state
+      if (localStorage.getItem("sidebarCollapsed") === "true") {
+        document.getElementById('sidebar').classList.add('collapsed');
+      }
+
+      // Add animation classes to form elements
+      const formElements = document.querySelectorAll('.form-control, .form-select, .btn');
+      formElements.forEach((el, index) => {
+        el.style.animationDelay = `${index * 0.05}s`;
+        el.classList.add('animate__animated', 'animate__fadeInUp');
+      });
+
+      // Add hover effects to cards
+      const cards = document.querySelectorAll('.card');
+      cards.forEach(card => {
+        card.addEventListener('mouseenter', () => {
+          card.style.transform = 'translateY(-5px)';
+          card.style.boxShadow = '0 10px 20px rgba(0, 0, 0, 0.2)';
+        });
+        card.addEventListener('mouseleave', () => {
+          card.style.transform = '';
+          card.style.boxShadow = '';
+        });
+      });
+    };
+
+    // Add animation to elements when they come into view
+    const animateOnScroll = () => {
+      const elements = document.querySelectorAll('.animate__animated');
+      elements.forEach(el => {
+        const elementPosition = el.getBoundingClientRect().top;
+        const screenPosition = window.innerHeight / 1.2;
+        
+        if (elementPosition < screenPosition) {
+          el.style.opacity = '1';
+        }
+      });
+    };
+
+    window.addEventListener('scroll', animateOnScroll);
+    animateOnScroll(); // Run once on page load
+  </script>
+</body>
+</html>
